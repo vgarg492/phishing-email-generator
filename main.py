@@ -17,11 +17,11 @@ if not GROQ_API_KEY:
 
 # Common phishing typologies
 PHISHING_TYPOLOGIES = {
-    "urgency": ["urgent", "immediate", "action required", "deadline"],
-    "authority": ["ceo", "manager", "director", "executive"],
-    "fear": ["suspended", "locked", "compromised", "security"],
-    "greed": ["reward", "bonus", "prize", "win"],
-    "curiosity": ["click here", "see attached", "check this"]
+    "Urgency": ["urgent", "immediate", "action required", "deadline"],
+    "Authority": ["ceo", "manager", "director", "executive"],
+    "Fear": ["suspended", "locked", "compromised", "security"],
+    "Greed": ["reward", "bonus", "prize", "win"],
+    "Curiosity": ["click here", "see attached", "check this"]
 }
 
 def validate_email(email):
@@ -126,7 +126,7 @@ def generate_email():
             # Validate email format
             if not validate_email(to):
                 return jsonify({"error": "Invalid email format generated"}), 400
-            
+            print(f"Typologies:{typologies}")
             return jsonify({
                 "subject": subject,
                 "to": to,

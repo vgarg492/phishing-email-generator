@@ -15,12 +15,20 @@
     </div>
   </div>
 
-
   <div class="container">
     <h1>Phishing Email Generator</h1>
     <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
     <button onclick="sendPrompt()">Generate Email</button>
+    
+    <!-- Typology info div - initially hidden -->
+    <div id="typology-info" class="typology-info" style="display: none;">
+      <h4>Detected Phishing Typologies:</h4>
+      <ul id="typologyList" class="typology-list">
+        <!-- Typologies will be populated here -->
+      </ul>
+    </div>
   </div>
+
   <div class="email-box" id="emailBox">
     <div class="compose-header">
         <span class="compose-title">New Message</span>
@@ -55,7 +63,6 @@
         </div>
 
         <textarea class="compose-editor" placeholder="Compose email"></textarea>            
-        
     </div>
 
     <div class="compose-footer">
@@ -72,7 +79,7 @@
             <button class="footer-btn trash-icon" title="Discard draft"></button>
         </div>
     </div>
-</div>
+  </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

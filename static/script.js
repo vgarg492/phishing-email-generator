@@ -39,22 +39,20 @@ function sendPrompt() {
 
     // Display typologies if any were detected
     if (data.typologies && data.typologies.length > 0) {
-      const typologyDiv = document.createElement('div');
-      typologyDiv.className = 'typology-info';
-      typologyDiv.innerHTML = `
-        <h4>Detected Phishing Typologies:</h4>
-        <ul>
-          ${data.typologies.map(t => `<li>${t}</li>`).join('')}
-        </ul>
-      `;
+      // Show the typology box
+      document.getElementById('typology-info').style.display = 'block';
       
-      // Remove any existing typology info
-      const existingTypology = document.querySelector('.typology-info');
-      if (existingTypology) {
-        existingTypology.remove();
-      }
-      
-      document.querySelector('.container').appendChild(typologyDiv);
+      // Populate typology list
+      const typologyList = document.getElementById('typologyList');
+      typologyList.innerHTML = ''; // Clear existing typologies
+      data.typologies.forEach(typology => {
+        const li = document.createElement('li');
+        li.textContent = typology;
+        typologyList.appendChild(li);
+      });
+    } else {
+      // Hide the typology box if no typologies were detected
+      document.getElementById('typology-info').style.display = 'none';
     }
   })
   .catch(error => {
