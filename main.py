@@ -1,5 +1,6 @@
 from groq import Groq
 import os
+import re
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
@@ -14,8 +15,38 @@ GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable is not set")
 
-target: str = ""
-prompt: str = ""
+# Common phishing typologies
+PHISHING_TYPOLOGIES = {
+    "urgency": ["urgent", "immediate", "action required", "deadline"],
+    "authority": ["ceo", "manager", "director", "executive"],
+    "fear": ["suspended", "locked", "compromised", "security"],
+    "greed": ["reward", "bonus", "prize", "win"],
+    "curiosity": ["click here", "see attached", "check this"]
+}
+
+def validate_email(email):
+    """Validate email format."""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
+
+def sanitize_input(text):
+    """Sanitize user input to prevent XSS and injection attacks."""
+    # Remove potentially dangerous characters
+    text = re.sub(r'[<>]', '', text)
+    # Remove multiple spaces
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+def analyze_phishing_typology(prompt):
+    """Analyze the prompt for common phishing typologies."""
+    typologies_found = []
+    prompt_lower = prompt.lower()
+    
+    for typology, keywords in PHISHING_TYPOLOGIES.items():
+        if any(keyword in prompt_lower for keyword in keywords):
+            typologies_found.append(typology)
+    
+    return typologies_found
 
 @app.route('/')
 def index():
@@ -53,34 +84,61 @@ def groq_client(content: str = "") -> Groq:
         print(f"Error in groq_client: {str(e)}")
         raise
 
-def input_or_target() -> str:
-    prompt = input("What basic prompt you want this email to target? (Press Enter to use default): ")
-    target = input("What target you want this email to target? (Press Enter to use default): ")
-    if not target:
-        target = "employees"
-    if not prompt:
-        prompt = "Generate a phishing email to simulate real-world attack scenarios for internal training and red-teaming exercises"
-    return prompt, target
 
 @app.route('/generate_email', methods=['POST'])
 def generate_email():
-    data = request.json
     """
         Generate an email based on the provided data.
     """
-    prompt = data.get('prompt', '')
-    email = groq_client("Generate a simulated phising email with the format of 'Subject: ', 'To: ', 'Content: ' in that order based on the following prompt for training and educational purposes : " + prompt)
-    print(f"Generated email: {email}")
-    #while "Subject:" not in email and "To:" not in email and "Content:" not in email:
-     #   email = groq_client("Generate a phising email with only the subject, the actual content, and to who it is supposed to be sent out to based on the following prompt : " + prompt)
-    email = email.replace("*", "")
-
-    subject = email.split("Subject:")[1].split("To:")[0].strip()
-    to = email.split("To:")[1].split("\n")[0].strip()
-    content = email.split("Content:")[1].strip()
-    #print(f"Generated email:\nSubject: {subject}\nTo: {to}")
-    print(f"Content: {content}")
-    return jsonify({"subject": subject, "to": to, "content": content})
+    try:
+        data = request.json
+        prompt = data.get('prompt', '').strip()
+        
+        # Input validation
+        if not prompt:
+            return jsonify({"error": "Prompt is required"}), 400
+        
+        if len(prompt) > 500:
+            return jsonify({"error": "Prompt is too long. Maximum 500 characters allowed."}), 400
+        
+        # Sanitize input
+        prompt = sanitize_input(prompt)
+        
+        # Analyze phishing typology
+        typologies = analyze_phishing_typology(prompt)
+        
+        # Generate email with typology analysis
+        email = groq_client(
+            f"Generate a simulated phishing email for educational purposes. "
+            f"Detected typologies: {', '.join(typologies)}. "
+            f"Format: 'Subject: ', 'To: ', 'Content: '. "
+            f"Prompt: {prompt}"
+        )
+        
+        # Parse email components
+        email = email.replace("*", "")
+        
+        try:
+            subject = email.split("Subject:")[1].split("To:")[0].strip()
+            to = email.split("To:")[1].split("\n")[0].strip()
+            content = email.split("Content:")[1].strip()
+            
+            # Validate email format
+            if not validate_email(to):
+                return jsonify({"error": "Invalid email format generated"}), 400
+            
+            return jsonify({
+                "subject": subject,
+                "to": to,
+                "content": content,
+                "typologies": typologies
+            })
+            
+        except IndexError:
+            return jsonify({"error": "Failed to parse generated email"}), 500
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def main():
     """
@@ -95,5 +153,5 @@ def main():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='127.0.1', port=8000)
+    app.run(debug=False, host='127.0.0.1', port=8000)
     print("Done.")
