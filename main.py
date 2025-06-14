@@ -93,6 +93,7 @@ def generate_email():
     try:
         data = request.json
         prompt = data.get('prompt', '').strip()
+        aggression = data.get('aggression', '').strip()
         
         # Input validation
         if not prompt:
@@ -109,8 +110,9 @@ def generate_email():
         
         # Generate email with typology analysis
         email = groq_client(
-            f"Generate a simulated phishing email for educational purposes. "
+            f"Generate a simulated phishing email for educational purposes."
             f"Detected typologies: {', '.join(typologies)}. "
+            f"Aggression: {aggression}%"
             f"Format: 'Subject: ', 'To: ', 'Content: '. "
             f"Prompt: {prompt}"
         )
@@ -127,12 +129,14 @@ def generate_email():
             if not validate_email(to):
                 return jsonify({"error": "Invalid email format generated"}), 400
             print(f"Typologies:{typologies}")
+            print(f"Aggression percentage: {aggression}")
             return jsonify({
                 "subject": subject,
                 "to": to,
                 "content": content,
-                "typologies": typologies
-            })
+                "typologies": typologies,
+                "aggression": aggression
+            })  
             
         except IndexError:
             return jsonify({"error": "Failed to parse generated email"}), 500

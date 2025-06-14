@@ -1,5 +1,6 @@
 function sendPrompt() {
   const prompt = document.getElementById("prompt").value;
+  const aggressionLevel = document.getElementById('aggressionRange').value;
   if(prompt.trim() === "") {
     alert("Please enter a prompt.");
     return;
@@ -20,7 +21,7 @@ function sendPrompt() {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ prompt: prompt })
+    body: JSON.stringify({ prompt: prompt, aggression: aggressionLevel })
   })
   .then(response => {
     if (!response.ok) {
