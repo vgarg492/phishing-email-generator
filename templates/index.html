@@ -14,54 +14,38 @@
       Phishing Email Generator
     </div>
   </div>
-
-  <div id="aggression-level" class="aggression-level">
-    <!-- percent of aggression -->
-    <h4>Phishing Aggression Level:</h4>
-    <input type="range" id="aggressionRange" min="0" max="100" value="50" class="slider">
-      <!-- Aggression level will be displayed here -->
+  <div class="emails-container">
+    <div class="emails-header">
+      <h4>Emails</h4>
+    </div>
+    <div class="email-list" id="email-list">
+    </div>
+    
   </div>
 
+
+    <!-- 
   <div class="container">
+
     <h1>Phishing Email Generator</h1>
     <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
     <button onclick="sendPrompt()">Generate Email</button>
-    
-    <!-- Typology info div - initially hidden -->
-    <div id="typology-info" class="typology-info" style="display: none;">
-      <h4>Detected Phishing Typologies:</h4>
-      <ul id="typologyList" class="typology-list">
-        <!-- Typologies will be populated here -->
-      </ul>
-    </div>
   </div>
+    -->
+  
+    <!-- Typology info div - initially hidden -->
 
+<div class="all" id = "all"> 
   <div class="email-box" id="emailBox">
     <div class="compose-header">
         <span class="compose-title">New Message</span>
-        <div class="header-actions">
-            <button class="header-btn">−</button>
-            <button class="header-btn">□</button>
-            <button class="header-btn">×</button>
-        </div>
     </div>
 
     <div class="compose-body">
         <div class="field-row">
             <div class="field-label">To</div>
             <input type="email" class="field-input" placeholder="Recipients">
-            <a href="#" class="cc-bcc-toggle" onclick="toggleCcBcc()">Cc Bcc</a>
-        </div>
-
-        <div class="cc-bcc-fields" id="ccBccFields">
-            <div class="field-row">
-                <div class="field-label">Cc</div>
-                <input type="email" class="field-input" placeholder="Carbon copy recipients">
-            </div>
-            <div class="field-row">
-                <div class="field-label">Bcc</div>
-                <input type="email" class="field-input" placeholder="Blind carbon copy recipients">
-            </div>
+            
         </div>
 
         <div class="field-row subject-row">
@@ -73,6 +57,9 @@
     </div>
 
     <div class="compose-footer">
+      <textarea class="prompt-textarea" id="prompt" placeholder="Enter your prompt..."></textarea>
+      <button id = "generate-button" class="generate-button" onclick="sendPrompt()">Generate Email</button>
+      <!--
         <button class="send-button">
             Send
         </button>
@@ -85,8 +72,26 @@
             <button class="footer-btn more-options" title="More options"></button>
             <button class="footer-btn trash-icon" title="Discard draft"></button>
         </div>
+        -->
     </div>
   </div>
+
+  <div class="info-container">
+    <div id="typology-info" class="typology-info" style="display: none;">
+      <h4>Detected Phishing Typologies:</h4>
+      <ul id="typologyList" class="typology-list">
+        <!-- Typologies will be populated here -->
+      </ul>
+ 
+    </div>
+    <div id="aggression-level" class="aggression-level">
+      <!-- percent of aggression -->
+      <h4>Phishing Aggression Level:</h4>
+      <input type="range" id="aggressionRange" min="0" max="100" value="50" class="slider">
+        <!-- Aggression level will be displayed here -->
+    </div>
+  </div>
+</div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

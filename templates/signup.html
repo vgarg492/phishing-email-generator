@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phising Email - Signup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='signup.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <h1 class="app-title">Phishing Email Generator</h1>
+        </div>
+        
+        <div class="right-section">
+            <div class="form-container">
+                <h2 class="form-title">Sign Up</h2>
+                <p class="form-subtitle">Create your account to get started</p>
+                
+                <form method="POST" action="/signup">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="username" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" placeholder="Enter your Password" required>
+                            <button type="button" class="toggle-password">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="signup-btn">Sign Up</button>
+                </form>
+                <div class="form-footer">
+                    <p>Already have an account? <a href="/login" class="login-link">Log In</a></p>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

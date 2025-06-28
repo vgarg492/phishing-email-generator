@@ -1,20 +1,46 @@
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f4f4f4;
+  background-color: #ffffff;
   text-align: center;
   padding: 50px;
   padding-top: 0px;
-  padding-bottom:0px;
+  padding-bottom: 0px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.all{
+  margin-left: 20%;
+  
+}
+
+.emails-container{
+  width: 250px;
+  background-color: #fafafa;
+  color: #393939;
+  padding: 20px 0;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  left: 0;
+  top: 0;
+  margin: 0;
+  margin-top: 30px;
 }
 
 .navbar {
-  background-color: #007bff;
+  background-color: #d7f380;
   padding: 12px 20px;
-  color: white;
+  color: #393939;
   text-align: left;
-  width: 92vw;
-  height: 24px;
-  border-radius: 10px;
+  width: 100%;
+  height: 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-radius: 0;
   .logo {
     font-size: 24px;
     font-weight: bold;
@@ -26,273 +52,244 @@ body {
     border-radius: 10px;
   }
 }
-
+/*
 .container {
-  max-width: 800px;
-  margin: 30px 20px;
+  max-width: 90%;
+  margin: 20px auto;
   background: white;
   padding: 20px;
   border-radius: 10px;
-  max-height: 30vh;
-  margin-bottom: -375px;
-  margin-top: 5px;
-  
-  
-  
+  height: auto;
+  order: 2;
 }
-
-textarea {
-  width: 95%;
-  height: 100px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 0px;
-  font-size: 16px;
-  background: #f8f9fa ;
-  border-radius: 10px;
-  padding-left: 24px;
-  padding-top: 10px;
+*/
+.compose-editor {
+  min-height: 60vh;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #202124;
+  border: none;
+  outline: none;
+  resize: vertical;
   font-family: inherit;
+  width: 97%;
+  border-radius: 10px;
+  background: #f8f9fa;
+  
 }
 
-button {
-  padding: 20px 20px;
+.prompt-textarea {
+  width: 90%;
+  height: 20px;
+  margin: 10px 0;
+  padding: 10px;
   font-size: 16px;
-  background-color: #007bff;
+  background: #f8f9fa;
+  border-radius: 100px;
+  font-family: inherit;
+  resize: vertical;
+  max-height: 100px;
+  margin-left: -10px;
+}
+
+/* Make the email box content area take up most of the space */
+.compose-body {
+  height: calc(100% - 120px); /* Subtract header and footer height */
+  overflow-y: auto;
+}
+
+
+.container {
+  background: white;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.container h1 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: #393939;
+}
+
+/* Make the generate button more prominent */
+.container button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 15px;
+  font-size: 16px;
+  background-color: #393939;
   color: white;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
-  transform: translateY(-3px);
-  /*box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);*/
-        
-}
-
-.email-box{
-  margin-left: 1000px;
-  margin-top: 0px;
-  width: 600px;
-  max-height: 300px;
-  
   border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
-  /*
-  .compose-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+.container button:hover {
+  background-color: #5ea977;
+  transform: translateY(-2px);
+}
 
-  }
-*/
-  .compose-header {
-    background: #f8f9fa;
-    border-bottom: 1px solid #e8eaed;
-    padding: 12px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 10px;
-  }
+.email-box {
+  margin: 80px auto 20px;
+  width: 90%;
+  height: 60vh;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  order: 1;
+  height: 80vh;
+}
 
-  .compose-title {
-    font-size: 14px;
-    font-weight: bold;
-    color: #202124;
+.compose-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8eaed;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+}
 
-    
-  }
+.compose-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #202124;
+}
 
-  .header-actions {
-    display: flex;
-    gap: 8px;
-  }
 
-  .header-btn {
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #5f6368;
-    font-size: 14px;
-    border-radius: 10px;
-  }
 
-  .header-btn:hover {
-    background: #e8eaed;
-  }
+.header-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #5f6368;
+  font-size: 14px;
+  border-radius: 10px;
+}
 
-  .compose-body {
-    padding: 0;
-    background: white;
-    border-radius: 10px;
-    
-  }
+.header-btn:hover {
+  background: #e8eaed;
+}
 
-  .field-row {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #e8eaed;
-    min-height: 48px;
-    background: white;
-    border-radius: 10px;
-  }
+.field-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e8eaed;
+  min-height: 48px;
+  background: white;
+  border-radius: 10px;
+}
 
-  .field-label {
-    min-width: 80px;
-    padding: 12px 24px;
-    font-size: 14px;
-    color: #5f6368;
-    background: #f8f9fa;
-    border-right: 1px solid #e8eaed;
-    border-radius: 10px;
-  }
+.field-label {
+  min-width: 80px;
+  padding: 12px 24px;
+  font-size: 14px;
+  color: #5f6368;
+  background: #f8f9fa;
+  border-right: 1px solid #e8eaed;
+  border-radius: 10px;
+}
 
-  .field-input {
-    flex: 1;
-    padding: 12px 16px;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    color: #202124;
-    background: transparent;
-  }
+.field-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #202124;
+  background: transparent;
+}
 
-  .field-input::placeholder {
-      color: #9aa0a6;
-  }
+.field-input::placeholder {
+  color: #9aa0a6;
+}
 
-  .cc-bcc-toggle {
-    padding: 12px 16px;
-    font-size: 12px;
-    color: #1a73e8;
-    cursor: pointer;
-    text-decoration: none;
-  }
 
-  .cc-bcc-toggle:hover {
-    text-decoration: underline;
-  }
+.compose-footer {
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-top: 1px solid #e8eaed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+  
+}
 
-  .cc-bcc-fields {
-    display: none;
-  }
+.generate-button {
+  background: #393939;;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  width: 120px;
+}
 
-  .cc-bcc-fields.active {
-    display: block;
-  }
+.generate-button:hover {
+  background-color: #5ea977;
+  transform: translateY(-2px);
+}
 
-  .subject-row {
-    position: relative;
-  }
+.footer-actions {
+  display: flex;
+  gap: 12px;
+}
 
-  .compose-editor {
-    min-height: 300px;
-    padding: 16px 9px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #202124;
-    border: none;
-    outline: none;
-    resize: vertical;
-    font-family: inherit;
-    width: 95%;
-  }
+.aggression-level {
+  margin: 20px auto;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #d7f380;
+  font-size: 18px;
+  max-width: 25%;
+  order: 3;
+  display: inline-block;
+  width: 25%;
+  margin-right: 20%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
-  .compose-footer {
-    padding: 16px 24px;
-    background: #f8f9fa;
-    border-top: 1px solid #e8eaed;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 10px;
-  }
+}
 
-  .send-button {
-    background: #1a73e8;
-    color: white;
-    border: none;
-    padding: 8px 24px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.aggression-level h4 {
+  margin: 0 0 10px 0;
+  color: #000000;
+  font-size: 16px;
+}
 
-  .send-button:hover {
-    background: #1557b0;
-  }
-
-  .footer-actions {
-    display: flex;
-    gap: 12px;
-  }
-
-  .footer-btn {
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #5f6368;
-    font-size: 14px;
-    border-radius: 10px;
-  }
-
-  .footer-btn:hover {
-    background: #e8eaed;
-  }
-
-  .attachment-icon::before {
-    content: "📎";
-  }
-
-  .emoji-icon::before {
-    content: "😊";
-  }
-
-  .drive-icon::before {
-    content: "💾";
-  }
-
-  .photo-icon::before {
-    content: "🖼️";
-  }
-
-  .link-icon::before {
-    content: "🔗";
-  }
-
-  .more-options::before {
-    content: "⋮";
-  }
-
-  .trash-icon::before {
-    content: "🗑️";
-  }
+.aggressionRange {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: none;
 }
 
 .typology-info {
-  margin-top: 60px;
+  margin: 20px auto;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 8px;
   border-left: 4px solid #dc3545;
   font-size: 18px;
-}
+  max-width: 40%;
+  order: 3;
+  display: inline-block;
+  width: 25%;
+  margin-left: 20%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
+
+}
 
 .typology-info h4 {
   margin: 0 0 10px 0;
@@ -317,24 +314,41 @@ button:hover {
   margin-right: 8px;
 }
 
-.aggression-level {
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #007bff;
-  max-width: 200px;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 225px;
-}
-.aggression-level h4 {
-  margin: 0 0 10px 0;
-  color: #000000;
-  font-size: 16px;
-}
-.aggressionRange {
-  margin: 0;
-  padding-left: 20px;
-  list-style-type: none;
+/* Add a wrapper for the two info boxes */
+.info-container {
+  width: 90%;
+  margin: 0 auto;
+  order: 3;
+  display: flex;
+  justify-content: space-between;
   
+}
+
+.emails-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px 10px 20px;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.email-list > button {
+  background: #393939;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  width: 90%;
+}
+
+.email-list > button:hover {
+  background-color: #5ea977;
+  transform: translateY(-2px);
 }

@@ -1,14 +1,81 @@
 from groq import Groq
 import os
 import re
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from dotenv import load_dotenv
-
+import sqlite3
+import bcrypt
+import secrets
 # Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)  # Generate a random secret key
+
+def get_db_connection():
+    """Create and return a database connection."""
+    conn = sqlite3.connect('users.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    """Initialize the database with required tables."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password BLOB)''')
+    conn.commit()
+    conn.close()
+
+# Initialize database
+init_db()
+
+def sign_up(username, password):
+    try:
+        """Register a new user."""
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hashed_password))
+        conn.commit()
+        conn.close()
+        
+        #create a new email databse for the user
+        user_email_db = f"{username}_emails.db"
+        user_conn = sqlite3.connect(user_email_db)
+        user_cursor = user_conn.cursor()
+        user_cursor.execute('''CREATE TABLE IF NOT EXISTS emails (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT, \"to\" TEXT, content TEXT, typologies TEXT, aggression TEXT, prompt TEXT)''')
+        user_conn.commit()
+        user_conn.close()
+        
+    except sqlite3.IntegrityError:
+        print(f"User already exists")
+        
+    except Exception as e:
+        print(f"Error in sign_up: {str(e)}")
+        
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user and bcrypt.checkpw(password.encode('utf-8'), user[2]):
+            print(f"User {username} signed in successfully")
+            session['username'] = username  # Store username in session
+            return redirect(url_for('index'))
+        else:
+            print(f"Invalid username or password")
+            return render_template('login.html', error="Invalid username or password")
+    return render_template('login.html')
+
+
+
 
 # Get API key from environment variable
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
@@ -48,12 +115,28 @@ def analyze_phishing_typology(prompt):
     
     return typologies_found
 
-@app.route('/')
+@app.route('/email')
 def index():
     """
         Render the index page.
     """
     return render_template('index.html')
+
+@app.route('/')
+def login():
+    """
+        Render the login page.
+    """
+    return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        sign_up(username, password)
+        return redirect(url_for('login'))
+    return render_template('signup.html')
 
 def groq_client(content: str = "") -> Groq:
     """
@@ -91,6 +174,11 @@ def generate_email():
         Generate an email based on the provided data.
     """
     try:
+        # Get username from session
+        username = session.get('username')
+        if not username:
+            return jsonify({"error": "User not logged in"}), 401
+        
         data = request.json
         prompt = data.get('prompt', '').strip()
         aggression = data.get('aggression', '').strip()
@@ -110,7 +198,7 @@ def generate_email():
         
         # Generate email with typology analysis
         email = groq_client(
-            f"Generate a simulated phishing email for educational purposes."
+            f"Generate a simulated phishing email for educational purposes. In the email, you should be as aggressive as the aggression level. Also in the 'To' section, you must put an email that is valid and not a fake email."
             f"Detected typologies: {', '.join(typologies)}. "
             f"Aggression: {aggression}%"
             f"Format: 'Subject: ', 'To: ', 'Content: '. "
@@ -128,19 +216,125 @@ def generate_email():
             # Validate email format
             if not validate_email(to):
                 return jsonify({"error": "Invalid email format generated"}), 400
+            
             print(f"Typologies:{typologies}")
             print(f"Aggression percentage: {aggression}")
+
+            # Save the email to the user's database
+            user_email_db = f"{username}_emails.db"
+            user_conn = sqlite3.connect(user_email_db)
+            user_cursor = user_conn.cursor()
+            
+            # Create table if it doesn't exist (with proper quoted column name)
+            user_cursor.execute('''CREATE TABLE IF NOT EXISTS emails 
+                                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                   subject TEXT, 
+                                   "to" TEXT, 
+                                   content TEXT, 
+                                   typologies TEXT, 
+                                   aggression TEXT, 
+                                   prompt TEXT)''')
+            
+            # Insert the email data
+            user_cursor.execute('INSERT INTO emails (subject, "to", content, typologies, aggression, prompt) VALUES (?, ?, ?, ?, ?, ?)', 
+                               (subject, to, content, str(typologies), aggression, prompt))
+            user_conn.commit()
+            user_conn.close()
+
             return jsonify({
                 "subject": subject,
                 "to": to,
                 "content": content,
                 "typologies": typologies,
-                "aggression": aggression
+                "aggression": aggression,
+                "prompt": prompt
             })  
             
         except IndexError:
             return jsonify({"error": "Failed to parse generated email"}), 500
             
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_emails', methods=['GET'])
+def get_emails():
+    """
+    Get all emails for the current user.
+    """
+    try:
+        # Get username from session
+        username = session.get('username')
+        if not username:
+            return jsonify({"error": "User not logged in"}), 401
+        
+        # Connect to user's email database
+        user_email_db = f"{username}_emails.db"
+        user_conn = sqlite3.connect(user_email_db)
+        user_cursor = user_conn.cursor()
+        
+        # Get all emails for the user
+        user_cursor.execute('SELECT id, subject, "to", content, typologies, aggression, prompt FROM emails ORDER BY id DESC')
+        emails = user_cursor.fetchall()
+        
+        # Convert to list of dictionaries
+        email_list = []
+        for email in emails:
+            email_list.append({
+                'id': email[0],
+                'subject': email[1],
+                'to': email[2],
+                'content': email[3],
+                'typologies': email[4],
+                'aggression': email[5],
+                'prompt': email[6]
+            })
+        
+        user_conn.close()
+        
+        return jsonify({"emails": email_list})
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_email/<int:email_id>', methods=['GET'])
+def get_email(email_id):
+    """
+    Get a specific email by ID for the current user.
+    """
+    try:
+        # Get username from session
+        username = session.get('username')
+        if not username:
+            return jsonify({"error": "User not logged in"}), 401
+        
+        # Connect to user's email database
+        user_email_db = f"{username}_emails.db"
+        user_conn = sqlite3.connect(user_email_db)
+        user_cursor = user_conn.cursor()
+        
+        # Get the specific email
+        user_cursor.execute('SELECT id, subject, "to", content, typologies, aggression, prompt FROM emails WHERE id = ?', (email_id,))
+        email = user_cursor.fetchone()
+        
+        if not email:
+            user_conn.close()
+            return jsonify({"error": "Email not found"}), 404
+        
+        # Convert to dictionary
+        email_data = {
+            'id': email[0],
+            'subject': email[1],
+            'to': email[2],
+            'content': email[3],
+            'typologies': email[4],
+            'aggression': email[5],
+            'prompt': email[6]
+        }
+        
+        user_conn.close()
+        
+        return jsonify({"email": email_data})
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
