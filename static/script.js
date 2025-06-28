@@ -181,3 +181,4 @@ function loadEmailToEditor(data){
   }
   document.getElementById('aggressionRange').value = data.aggression;
 }
+

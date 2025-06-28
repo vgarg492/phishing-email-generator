@@ -165,15 +165,6 @@ body {
     text-decoration: underline;
 }
 
-.forgot-password {
-    color: #667eea;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-.forgot-password:hover {
-    text-decoration: underline;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
